@@ -2,6 +2,7 @@ from sys import exit
 import utils
 import pygame
 
+import Tilemap
 from clouds import Clouds
 from entity import Entity
 
@@ -16,10 +17,12 @@ class Game:
         self.images = {
             "background": utils.load_image("background.png"),
             "clouds": utils.load_images("clouds"),
-            "player": utils.load_image("entities/player.png"),
+            "player_left": pygame.transform.flip(utils.load_image("entities/player.png"), True, False),
+            "player_right": utils.load_image("entities/player.png"),
+            "grass_tiles": utils.load_images("tiles/grass")
         }
         self.clouds = Clouds(self.images["clouds"], count=16)
-        self.player = Entity(160, 200, self.images["player"])
+        self.player = Entity(160, 200, self.images["player_right"])
 
     def run(self):
         while True:
@@ -38,16 +41,12 @@ class Game:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_LEFT]:
                 self.player.move(-1,0)
-                if not self.player.flipped:
-                    self.player.image = pygame.transform.flip(self.player.image, True, False)
-                    self.player.flipped = True
+                self.player.image = self.images["player_left"]
             if keys[pygame.K_RIGHT]:
                 self.player.move(1,0)
-                if self.player.flipped:
-                    self.player.image = pygame.transform.flip(self.player.image, True, False)
-                    self.player.flipped = False
+                self.player.image = self.images["player_right"]
 
-
+            Tilemap.Floor(0, 216, self.images["grass_tiles"]).render(self.display)
 
             self.player.render(self.display)
 

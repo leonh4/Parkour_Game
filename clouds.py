@@ -8,7 +8,7 @@ class Clouds:
         self.clouds = []
 
         for i in range(count):
-            self.clouds.append(Cloud(random.randrange(0,320), random.randrange(0, 220), random.random() * 0.05 + 0.05, random.choice(images)))
+            self.clouds.append(Cloud(random.randrange(0,320), random.randrange(0, 180), random.random() * 0.05 + 0.05, random.choice(images)))
 
 
     def move(self):
