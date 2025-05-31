@@ -19,7 +19,7 @@ class Game:
             "player": utils.load_image("entities/player.png"),
         }
         self.clouds = Clouds(self.images["clouds"], count=16)
-        self.player = Entity(100, 100)
+        self.player = Entity(160, 200, self.images["player"])
 
     def run(self):
         while True:
@@ -38,10 +38,18 @@ class Game:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_LEFT]:
                 self.player.move(-1,0)
+                if not self.player.flipped:
+                    self.player.image = pygame.transform.flip(self.player.image, True, False)
+                    self.player.flipped = True
             if keys[pygame.K_RIGHT]:
                 self.player.move(1,0)
+                if self.player.flipped:
+                    self.player.image = pygame.transform.flip(self.player.image, True, False)
+                    self.player.flipped = False
 
-            self.player.render(self.display, self.images["player"])
+
+
+            self.player.render(self.display)
 
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
