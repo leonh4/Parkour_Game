@@ -111,6 +111,7 @@ class Game:
                     if self.menu.play_button.get_rect().collidepoint(scaled_mouse_pos):
                         self.game_running = True
                         self.in_menu = False
+                        self.restart()
                     elif self.menu.score_button.get_rect().collidepoint(scaled_mouse_pos):
                         self.in_menu = False
                         self.viewing_score = True
@@ -301,6 +302,7 @@ class Game:
         self.player.standing = True
         self.player.running = False
         self.player.image = self.assets["player_idle_right"]
+        self.elapsed_seconds = 0
 
     def pause_loop(self, elapsed_seconds):
         """
