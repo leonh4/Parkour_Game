@@ -1,30 +1,100 @@
-# Pygame Platformer - Trophy Hunter
+# Trophy Hunter
 
-Projekt to dwuwymiarowa gra platformowa zrealizowana z wykorzystaniem biblioteki Pygame. Celem gracza jest dotarcie do trofeum umieszczonego na szczycie mapy, unikając przy tym generowanych losowo pocisków oraz przeszkód terenowych.
+Dwuwymiarowa gra platformowa napisana w Pythonie z użyciem biblioteki **Pygame**. Gracz wspina się po platformach w górę mapy, omija pociski przelatujące przez ekran i próbuje jak najszybciej dotrzeć do trofeum na szczycie. Liczy się czas: im szybciej, tym lepszy wynik.
 
-## Mechanika i działanie programu
+## Funkcje
 
-Gra opiera się na maszynie stanów, która zarządza przejściami między menu głównym, rozgrywką, pauzą a ekranem wyników.
+- **Wspinaczka w pionie**: kamera płynnie podąża za graczem w osi Y.
+- **Fizyka**: grawitacja, skoki i kolizje z kafelkami mapy.
+- **Przeszkody**: pociski poruszają się w poziomie co 100 pikseli wysokości, każdy z losową prędkością. Trafienie przez pocisk lub spadnięcie z mapy cofa gracza na start.
+- **Animacje**: animacja biegu oraz sprite'y zwrócone w lewo lub w prawo zależnie od kierunku ruchu.
+- **Tablica wyników**: czas każdego przejścia jest zapisywany, a gra pokazuje 5 najlepszych wyników.
+- **Zapis gry**: z menu pauzy można zapisać pozycję gracza i czas gry, a potem wczytać je z menu głównego.
+- **Grafika pixel-art**: obraz jest renderowany w rozdzielczości 320×240 i skalowany do okna 960×960.
 
-### Kluczowe systemy
+## Uruchomienie
 
-- **Fizyka i ruch**: Implementacja grawitacji, kolizji z kafelkami mapy oraz skoków. Ruch postaci wspiera animacje (bieg, bezczynność) zależne od kierunku i stanu encji.
-    
-- **System walki i przeszkód**: Dynamiczna lista obiektów typu `Projectile`, które poruszają się w poprzek ekranu. Kolizja z pociskiem skutkuje śmiercią gracza i resetem pozycji.
-    
-- **Kamera**: System śledzenia gracza w osi Y (pionowej), zapewniający płynne podążanie widoku za wspinającą się postacią.
-    
-- **Zapis i odczyt stanu**: Możliwość zapisu bieżącej pozycji gracza, współrzędnych kamery oraz czasu gry do pliku tekstowego, co pozwala na późniejszą kontynuację rozgrywki.
-    
+Wymagania: Python 3 i Pygame.
 
-### Zarządzanie wynikami
+```sh
+pip install pygame
+python src/game.py
+```
 
-Program mierzy czas przejścia poziomu, a po zdobyciu trofeum przelicza go na wynik punktowy. Dane są archiwizowane, co pozwala na wyświetlanie listy pięciu najlepszych wyników (Best Scores) w menu oraz po zakończeniu gry.
+> Grę trzeba uruchamiać z **głównego katalogu repozytorium**, bo ścieżki do zasobów (`assets/...`) są względne.
 
-### Sterowanie
+## Sterowanie
 
-- **Strzałki (Lewo/Prawo)**: Poruszanie postacią.
-    
-- **Spacja / Strzałka w górę**: Skok (dostępny tylko, gdy postać dotyka podłoża).
-    
-- **ESC**: Pauza i dostęp do menu zapisu.
+| Klawisz | Akcja |
+|---|---|
+| ← / → | Ruch w lewo / w prawo |
+| Spacja / ↑ | Skok (tylko gdy postać stoi na podłożu) |
+| ESC | Pauza / powrót do gry |
+| Lewy przycisk myszy | Obsługa przycisków w menu |
+
+## Ekrany gry
+
+- **Menu główne**: *Play* (nowa gra), *Score* (najlepsze wyniki), *Load* (wczytanie zapisu), *Exit* (wyjście).
+- **Rozgrywka**: wspinaczka do trofeum, z licznikiem czasu działającym w tle.
+- **Pauza**: *Save* zapisuje stan gry i wraca do menu, *Back* wraca do gry.
+- **Ekran końcowy**: wyświetla czas przejścia i 5 najlepszych wyników.
+
+## Struktura projektu
+
+```
+src/
+  game.py        # klasa Game: pętla główna, stany gry, zapis/odczyt
+  entity.py      # gracz: ruch, grawitacja, kolizje
+  map.py, tile.py  # wczytywanie i rysowanie mapy z kafelków
+  projectile.py  # pociski
+  trophy.py      # trofeum (cel gry)
+  menu.py, button.py  # menu i przyciski
+  clouds.py, cloud.py # chmury w tle
+  score.py       # pojedynczy wynik
+  utils.py       # wczytywanie grafik i wyników
+assets/
+  levels/        # pliki z układem mapy
+  tiles/, entities/, clouds/  # grafiki
+  save.txt       # zapisany stan gry
+  scores.txt     # historia wyników
+docs/            # dokumentacja Sphinx
+```
+
+### Jak działa gra
+
+Klasa `Game` działa jak prosta maszyna stanów. Flagi `in_menu`, `game_running`, `pause`, `post_game` i `viewing_score` decydują o tym, która pętla (menu, rozgrywka, pauza, ekran wyników) jest aktualnie aktywna. Wszystkie obiekty rysują się z przesunięciem o pozycję kamery (`camera_y`).
+
+### Format plików
+
+**Poziomy** (`assets/levels/*.txt`): każda linia opisuje jeden kafelek o rozmiarze 16×16 px:
+
+```
+x;y;nazwa_kafelka;numer_grafiki
+48;224;grass;0
+```
+
+`x` i `y` to współrzędne w pikselach, a `grass;0` oznacza grafikę `assets/tiles/grass/0.png`. Gra wczytuje wszystkie pliki z tego katalogu, więc żeby dodać nowy fragment mapy, wystarczy dodać nowy plik.
+
+**Wyniki** (`assets/scores.txt`):
+
+```
+MM:SS | data i godzina | liczba sekund
+01:40 | 2025-06-11 12:34:05.124639 | 100
+```
+
+**Zapis gry** (`assets/save.txt`): 4 linie z pozycją x i y gracza, pozycją kamery i liczbą sekund gry. Zapis jest jednorazowy, bo plik zostaje wyczyszczony po wczytaniu.
+
+## Dokumentacja
+
+Dokumentację API generuje Sphinx (autodoc) na podstawie docstringów w kodzie:
+
+```sh
+cd docs
+make html        # Windows: make.bat html
+```
+
+Wygenerowane strony trafiają do `docs/_build/html/`.
+
+## Autor
+
+Leonard Hołubowicz, 2025
